@@ -79,6 +79,15 @@
         "wantedList": ["cn", "private"]
       }
     },
+        {
+      "type": "v2rayGeoIPDat",
+      "action": "output",
+      "args": {
+        "oneFilePerList": true,
+        "wantedList": ["cn-ipv6", "private"],
+        "onlyIPType":"ipv6"
+      }
+    },
     {
       "type": "maxmindMMDB",
       "action": "output",
