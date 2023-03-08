@@ -1,4 +1,4 @@
-name: Build geoip.dat
+name: Build geoip files
 on:
   workflow_dispatch:
   schedule:
@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.x.y
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: ^1.17
+          go-version: ^1.18
 
       - name: Set variables
         run: |
@@ -29,7 +29,7 @@ jobs:
         shell: bash
 
       - name: Checkout codebase
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -42,6 +42,8 @@ jobs:
         run: |
           curl -sSL https://www.cloudflare.com/ips-v4 | grep "/" >> data/cloudflare
           curl -sSL https://www.cloudflare.com/ips-v6 | grep "/" >> data/cloudflare
+          curl -sSL https://www.gstatic.com/ipranges/goog.json | jq --raw-output '.prefixes[].ipv4Prefix,.prefixes[].ipv6Prefix | select(. != null)' >> data/google
+          curl -sSL https://www.gstatic.com/ipranges/cloud.json | jq --raw-output '.prefixes[].ipv4Prefix,.prefixes[].ipv6Prefix | select(. != null)' >> data/google
           curl -sSL https://api.fastly.com/public-ip-list | jq --raw-output '.addresses[],.ipv6_addresses[]' >> data/fastly
           curl -sSL https://ip-ranges.amazonaws.com/ip-ranges.json | jq --raw-output '.prefixes[],.ipv6_prefixes[] | select(.service == "CLOUDFRONT") | .ip_prefix,.ipv6_prefix' | grep "/" >> data/cloudfront
 
@@ -54,9 +56,17 @@ jobs:
           rm -f GeoLite2-Country-CSV.zip
           mv GeoLite2* geolite2
 
-      - name: Build geoip.dat file
+      - name: Build geoip files
         run: |
           go run ./
+
+      - name: Verify mmdb files
+        run: |
+          cd ./output/maxmind || exit 1
+          go install -v github.com/maxmind/mmdbverify@latest
+          for name in $(ls *.mmdb); do
+            $(go env GOPATH)/bin/mmdbverify -file ${name}
+          done
 
       - name: Generate sha256 checksum for dat files
         run: |
