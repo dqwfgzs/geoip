@@ -39,7 +39,7 @@
       "type": "text",
       "action": "add",
       "args": {
-        "name": "cn",
+        "name": "cn-ipv6",
         "uri": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt",
         "onlyIPType": "ipv6"
       }
@@ -117,6 +117,27 @@
       "type": "v2rayGeoIPDat",
       "action": "output",
       "args": {
+        "outputName": "geoip-china-ipv6.dat",
+        "wantedList": [
+          "cn",
+          "cn-ipv6",
+          "private",
+          "cloudflare",
+          "cloudfront",
+          "facebook",
+          "fastly",
+          "google",
+          "netflix",
+          "telegram",
+          "twitter"
+        ]
+      }
+    },
+
+    {
+      "type": "v2rayGeoIPDat",
+      "action": "output",
+      "args": {
         "oneFilePerList": true,
         "wantedList": ["cn", "private"]
       }
@@ -171,6 +192,24 @@
           "netflix",
           "telegram",
           "twitter"
+        ]
+      }
+    },
+    {
+      "type": "maxmindMMDB",
+      "action": "output",
+      "args": {
+        "outputName": "Country-asn-ipv6.mmdb",
+        "wantedList": [
+          "cloudflare",
+          "cloudfront",
+          "facebook",
+          "fastly",
+          "google",
+          "netflix",
+          "telegram",
+          "twitter",
+          "cn-ipv6"
         ]
       }
     },
